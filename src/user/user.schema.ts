@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, model } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
 export type UserDocument = HydratedDocument<User>;
@@ -19,6 +19,8 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
+export const UserModel = model<UserDocument>('User', UserSchema);
+
 export class CreateUserDto {
   @ApiProperty({
     description: 'User name like: Fulaninho',
@@ -27,7 +29,7 @@ export class CreateUserDto {
     example: 'Fulaninho Maneiro',
   })
   @IsString()
-  name: string;
+  readonly name: string;
 
   @ApiProperty({
     description: 'User email',
@@ -36,7 +38,7 @@ export class CreateUserDto {
     example: 'fulaninho.maneiro@firma.com',
   })
   @IsEmail()
-  email: string;
+  readonly email: string;
 
   @ApiProperty({
     description: 'User password',
