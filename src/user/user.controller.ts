@@ -1,5 +1,12 @@
-import { Controller, Post, Body, HttpStatus, HttpCode } from '@nestjs/common';
-import { CreateUserDto } from './user.schema';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  HttpStatus,
+  HttpCode,
+} from '@nestjs/common';
+import { CreateUserDto, ListUserDto, User } from './user.schema';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -10,5 +17,11 @@ export class UserController {
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     this.userService.store(createUserDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async list(): Promise<ListUserDto[]> {
+    return await this.userService.findAll();
   }
 }

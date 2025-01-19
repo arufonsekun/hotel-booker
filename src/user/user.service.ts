@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { CreateUserDto, User, UserModel } from './user.schema';
+import { CreateUserDto, ListUserDto, User, UserModel } from './user.schema';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -18,5 +18,10 @@ export class UserService {
 
   async findOneByEmail(email: string): Promise<any | undefined> {
     return await UserModel.findOne({ email }).exec();
+  }
+
+  // todo: ajustar pra retornar o user sem senha
+  async findAll(): Promise<ListUserDto[]> {
+    return await this.userModel.find().exec();
   }
 }
