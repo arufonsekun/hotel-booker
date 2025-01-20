@@ -2,27 +2,15 @@ services:
   mongo:
     image: mongo:latest
     container_name: mongo-hotel-booker
+    volumes:
+      - type: bind
+        source: ./mongo-init.js
+        target: /docker-entrypoint-initdb.d/mongo-init.js
+        read_only: true
     ports:
       - "27017:27017"
-    volumes:
-      - mongo-data:/data/mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin
-    restart: always
-
-  redis:
-    image: redis:latest
-    container_name: redis-hotel-booker
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data/redis
-    command: ["redis-server", "--appendonly", "yes"]
     restart: always
 
 volumes:
   mongo-data:
-    driver: local
-  redis-data:
     driver: local
