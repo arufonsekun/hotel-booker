@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { CreateUserDto, User, UserModel } from './user.schema';
+import { CreateUserDto, UpdateUserDto, User, UserModel } from './user.schema';
 import * as bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
 
@@ -29,5 +29,13 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     return await this.userModel.find().exec();
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    return await UserModel.findOneAndUpdate(
+      { _id: new Types.ObjectId(id) },
+      { $inc: { credit: updateUserDto.credit } },
+      { new: true },
+    ).exec();
   }
 }

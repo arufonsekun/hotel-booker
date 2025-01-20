@@ -1,5 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IsString, IsNotEmpty, IsEmail, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEmail,
+  IsOptional,
+  IsNumber,
+  Min,
+} from 'class-validator';
 import { HydratedDocument, model } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -16,7 +23,7 @@ export class User {
   @Prop({ required: true, select: false })
   password: string;
 
-  @Prop({ required: false, default: 0 })
+  @Prop({ required: false, default: 0, min: 0 })
   credit: number;
 }
 
@@ -32,6 +39,7 @@ export class CreateUserDto {
     example: 'Fulaninho Maneiro',
   })
   @IsString()
+  @IsNotEmpty()
   readonly name: string;
 
   @ApiProperty({
@@ -41,6 +49,7 @@ export class CreateUserDto {
     example: 'fulaninho.maneiro@firma.com',
   })
   @IsEmail()
+  @IsNotEmpty()
   readonly email: string;
 
   @ApiProperty({
@@ -49,16 +58,18 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty()
+  @IsString()
   password: string;
 
   @ApiProperty({
     description:
       'Amount of credit the user has to spent in the Hotel Booker app',
-    type: String,
+    type: Number,
     required: false,
     minimum: 0,
   })
   @IsOptional()
+  @Min(0)
   credit: number;
 }
 
@@ -79,4 +90,18 @@ export class SignInUserDto {
   })
   @IsNotEmpty()
   password: string;
+}
+
+export class UpdateUserDto {
+  @ApiProperty({
+    description:
+      'Amount of credit the user will add to his account in the Hotel Booker App',
+    type: Number,
+    required: true,
+    minimum: 1,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(1)
+  credit: number;
 }
