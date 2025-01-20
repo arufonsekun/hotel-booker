@@ -1,5 +1,5 @@
 # Hotel Booker
-Saudações, espero que esta documentação encontre-o bem. Esse arquivo tem o objetivo documentar os passos para como executar o Hotel Booker API bem como usar suas funcionalidades através de chamadas HTTP.
+Saudações, espero que esta documentação encontre-o bem. Esse arquivo tem o objetivo documentar os passos sobre como executar o Hotel Booker API bem como usar suas funcionalidades através de chamadas HTTP.
 
 ## Setup do ambiente
 1. Crie o arquivo com as variáveis de ambiente:
@@ -10,6 +10,7 @@ cp .env.example .env
 
 2. Inicie o banco de dados:
 ```bash
+# Cria um usuário e sobe o banco de dados
 docker-compose up -d
 ```
 
