@@ -66,3 +66,10 @@ export class CreateRoomDto {
   @IsNumber()
   capacity: number;
 }
+
+export class ListRoomDto {
+  readonly name: string;
+  readonly description: string;
+  readonly price: number;
+  readonly capacity: number;
+}

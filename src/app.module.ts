@@ -5,9 +5,10 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { databaseProviders } from './database/database.providers';
-import { BookingModule } from './booking/booking.module';
+import { BookModule } from './book/book.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { databaseConfig, CONFIG_DATABASE } from './config/database.config';
+import { RoomModule } from './room/room.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { databaseConfig, CONFIG_DATABASE } from './config/database.config';
     }),
     UserModule,
     AuthModule,
-    BookingModule,
+    BookModule,
+    RoomModule,
   ],
   controllers: [AppController],
   providers: [AppService, ...databaseProviders],
