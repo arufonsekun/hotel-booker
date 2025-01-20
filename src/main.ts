@@ -13,6 +13,14 @@ async function bootstrap() {
     .setVersion('1.0.0')
     .build();
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true, // transform request payload into DTOs
+      whitelist: true, // drop any adicional properties not includes in DTO
+      forbidNonWhitelisted: true, // return an error when a non-whitelisted property is found
+    }),
+  );
+
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 

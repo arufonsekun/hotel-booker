@@ -15,7 +15,6 @@ export class RoomService {
     return room.save();
   }
 
-  // todo: adicionar DTO de response
   async findAll(): Promise<ListRoomDto[]> {
     return await this.roomModel.find().exec();
   }
