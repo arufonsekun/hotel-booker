@@ -5,8 +5,9 @@ import {
   Body,
   HttpStatus,
   HttpCode,
+  Param,
 } from '@nestjs/common';
-import { CreateUserDto, ListUserDto, User } from './user.schema';
+import { CreateUserDto, User } from './user.schema';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -21,7 +22,13 @@ export class UserController {
 
   @HttpCode(HttpStatus.OK)
   @Get()
-  async list(): Promise<ListUserDto[]> {
+  async list(): Promise<User[]> {
     return await this.userService.findAll();
+  }
+
+  @HttpCode(HttpStatus.FOUND)
+  @Get(':id')
+  async get(@Param('id') id: string): Promise<User> {
+    return this.userService.findOneById(id);
   }
 }
