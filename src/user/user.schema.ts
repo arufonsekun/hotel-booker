@@ -33,7 +33,7 @@ export const UserModel = model<UserDocument>('User', UserSchema);
 
 export class CreateUserDto {
   @ApiProperty({
-    description: 'User name like: Fulaninho',
+    description: 'Nome de pessoa física',
     type: String,
     required: true,
     example: 'Fulaninho Maneiro',
@@ -43,7 +43,7 @@ export class CreateUserDto {
   readonly name: string;
 
   @ApiProperty({
-    description: 'User email',
+    description: 'Email do usuário',
     type: String,
     required: true,
     example: 'fulaninho.maneiro@firma.com',
@@ -53,7 +53,7 @@ export class CreateUserDto {
   readonly email: string;
 
   @ApiProperty({
-    description: 'User password',
+    description: 'Senha do usuário',
     type: String,
     required: true,
   })
@@ -63,7 +63,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     description:
-      'Amount of credit the user has to spent in the Hotel Booker app',
+      'Quantidade de crédito que o usuário tem para gastar no Hotel Booker App',
     type: Number,
     required: false,
     minimum: 0,
@@ -75,7 +75,7 @@ export class CreateUserDto {
 
 export class SignInUserDto {
   @ApiProperty({
-    description: 'User email',
+    description: 'Email do usuário',
     type: String,
     required: true,
     example: 'fulaninho.maneiro@firma.com',
@@ -84,7 +84,7 @@ export class SignInUserDto {
   readonly email: string;
 
   @ApiProperty({
-    description: 'User password',
+    description: 'Senha do usuário',
     type: String,
     required: true,
   })
@@ -95,13 +95,13 @@ export class SignInUserDto {
 export class UpdateUserDto {
   @ApiProperty({
     description:
-      'Amount of credit the user will add to his account in the Hotel Booker App',
+      'Quantidade de crédito que o usuário irá adicionar à sua conta no Hotel Booker App',
     type: Number,
     required: true,
-    minimum: 1,
+    minimum: 0,
   })
   @IsNumber()
   @IsNotEmpty()
-  @Min(1)
+  @Min(0)
   credit: number;
 }
