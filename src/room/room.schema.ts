@@ -24,6 +24,9 @@ export class Room {
 
   @Prop({ required: false, default: false })
   booked: boolean;
+
+  @Prop({ required: false, default: null })
+  bookerId: string;
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);
@@ -90,5 +93,5 @@ export class BookRoomDto {
   })
   @IsString()
   @IsNotEmpty()
-  userId: string;
+  bookerId: string;
 }

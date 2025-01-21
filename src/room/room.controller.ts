@@ -15,12 +15,11 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { UpdateUserDto } from 'src/user/user.schema';
 
 @Controller('room')
 export class RoomController {
   constructor(
-    private readonly roomService: RoomService, 
+    private readonly roomService: RoomService,
     private readonly userService: UserService,
   ) {}
 
@@ -62,12 +61,12 @@ export class RoomController {
     summary:
       'Cliente, reserve seu quarto de hotel agora mesmo (basta informar o id do quarto desejado)',
   })
-  @Post(':id/book')
+  @Post(':id/checkin')
   async book(
     @Param('id') roomId: string,
     @Body() bookRoomDto: BookRoomDto,
   ): Promise<ListRoomDto> {
-    const user = await this.userService.findOneById(bookRoomDto.userId);
+    const user = await this.userService.findOneById(bookRoomDto.bookerId);
     if (!user) {
       throw new NotFoundException('Usuário não encontrado');
     }
@@ -84,17 +83,48 @@ export class RoomController {
       );
     }
 
-    const updatedRoom = await this.roomService.book(room);
+    const updatedRoom = await this.roomService.checkin(room, user);
     if (!updatedRoom) {
-      throw new UnprocessableEntityException('Quarto já reservado');
+      throw new UnprocessableEntityException(
+        'Quarto já reservado, por favor tente escolher outro quarto',
+      );
     }
 
     /**
-     * Update user credit after booking a room
+     * Update user credit after booking the room
      */
-    this.userService.update(bookRoomDto.userId, {
+    this.userService.update(bookRoomDto.bookerId, {
       credit: updatedRoom.price * -1,
     });
+
+    return updatedRoom;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Cliente, faça checkout do seu quarto de hotel',
+  })
+  @Post(':id/checkout')
+  async checkout(
+    @Param('id') roomId: string,
+    @Body() bookRoomDto: BookRoomDto,
+  ): Promise<ListRoomDto> {
+    const user = await this.userService.findOneById(bookRoomDto.bookerId);
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const room = await this.roomService.findById(roomId);
+    if (!room) {
+      throw new NotFoundException('Quarto não encontrado');
+    }
+
+    const updatedRoom = await this.roomService.checkout(room, user);
+    if (!updatedRoom) {
+      throw new UnprocessableEntityException(
+        'O quarto não está reservado para você',
+      );
+    }
 
     return updatedRoom;
   }
