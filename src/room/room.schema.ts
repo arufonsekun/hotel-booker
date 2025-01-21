@@ -7,6 +7,9 @@ export type RoomDocument = HydratedDocument<Room>;
 
 @Schema()
 export class Room {
+  _id: string;
+  __v: number;
+
   @Prop({ required: true })
   name: string;
 
@@ -18,6 +21,9 @@ export class Room {
 
   @Prop({ required: true })
   capacity: number;
+
+  @Prop({ required: false, default: false })
+  booked: boolean;
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);
@@ -72,4 +78,17 @@ export class ListRoomDto {
   readonly description: string;
   readonly price: number;
   readonly capacity: number;
+  readonly booked: boolean;
+}
+
+export class BookRoomDto {
+  @ApiProperty({
+    description: 'Id do usuário que está fazendo a reserva',
+    type: String,
+    required: true,
+    example: '678ef4516b8fb6c4fcaf5025',
+  })
+  @IsString()
+  @IsNotEmpty()
+  userId: string;
 }
