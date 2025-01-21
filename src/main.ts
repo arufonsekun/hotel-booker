@@ -9,7 +9,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Hotel Booker API')
-    .setDescription('The Hotel Booker API description')
+    .setDescription('Documentação da API do Hotel Booker')
     .setVersion('1.0.0')
     .build();
 
