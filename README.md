@@ -1,4 +1,6 @@
 # Hotel Booker
+![image](https://github.com/user-attachments/assets/8f708e46-0f2b-4a35-b6ed-dcb26f555f5b)
+
 Saudações, espero que esta documentação encontre-o bem. Esse arquivo tem o objetivo documentar os passos sobre como executar o Hotel Booker API, documentar suas funcionalidades, e comentar um pouco sobre os detalhes de sua implementação.
 
 ## Setup do ambiente
