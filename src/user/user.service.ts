@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { CreateUserDto, UpdateUserDto, User, UserModel } from './user.schema';
+import { CreateUserDto, User, UserModel } from './user.schema';
 import * as bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
 
@@ -31,10 +31,18 @@ export class UserService {
     return await this.userModel.find().exec();
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async spendCredit(userId: string, roomPrice: number): Promise<User> {
     return await UserModel.findOneAndUpdate(
-      { _id: new Types.ObjectId(id) },
-      { $inc: { credit: updateUserDto.credit } },
+      { _id: new Types.ObjectId(userId) },
+      { $inc: { credit: roomPrice * -1 } },
+      { new: true },
+    ).exec();
+  }
+
+  async earnCredit(userId: string, credit: number): Promise<User> {
+    return await UserModel.findOneAndUpdate(
+      { _id: new Types.ObjectId(userId) },
+      { $inc: { credit } },
       { new: true },
     ).exec();
   }

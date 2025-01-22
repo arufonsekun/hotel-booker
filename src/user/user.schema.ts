@@ -14,7 +14,7 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema()
 export class User {
-  id: string;
+  _id: string;
 
   @Prop({ required: true })
   name: string;
@@ -94,16 +94,20 @@ export class SignInUserDto {
   password: string;
 }
 
-export class UpdateUserDto {
+export class UpdateUserRequestDto {
   @ApiProperty({
-    description:
-      'Quantidade de crédito que o usuário irá adicionar à sua conta no Hotel Booker App',
+    description: 'Quantidade de crédito que você deseja adicionar a sua conta',
     type: Number,
     required: true,
-    minimum: 0,
+    minimum: 1,
   })
   @IsNumber()
   @IsNotEmpty()
-  @Min(0)
+  @Min(1)
   credit: number;
+}
+
+export class UpdateUserResponseDto {
+  user: User;
+  message: string;
 }

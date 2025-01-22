@@ -24,7 +24,49 @@ export class RoomService {
     return await this.roomModel.findOne({ _id: new ObjectId(id) }).exec();
   }
 
-  async checkin(room: Room, user: User): Promise<Room> {
+  async findRoomBookedByUserWithPendingPayment(roomId: string, user: User) {
+    const roomBookedByUserWithPendingPayment = {
+      _id: new ObjectId(roomId),
+      booked: true,
+      bookerId: new ObjectId(user._id),
+      paymentConfirmed: false,
+    };
+
+    return await this.roomModel
+      .findOne(roomBookedByUserWithPendingPayment)
+      .exec();
+  }
+
+  async findRoomBookedByUserWithPaymentConfirmed(
+    roomId: string,
+    userId: string,
+  ): Promise<Room> {
+    const roomBookedByUserWithPaymentConfirmed = {
+      _id: new ObjectId(roomId),
+      booked: true,
+      bookerId: new ObjectId(userId),
+      paymentConfirmed: true,
+    };
+
+    return await this.roomModel
+      .findOne(roomBookedByUserWithPaymentConfirmed)
+      .exec();
+  }
+
+  /**
+   * Método que implementa a reserva de um quarto de hotel utilizando
+   * da estratégia: Optimistic Locking. Nele o quarto que se deseja
+   * reservar é atualizado com base no id e na versão do documento.
+   * Se a transação retornar um documento significa que a versão
+   * que tenho em mãos é a mais atual e que ninguém além de mim
+   * reservou o quarto, caso contrário o quarto foi reservado
+   * por outrém e eu não poderei reservá-lo.
+   *
+   * @param room quarto a ser reservado
+   * @param user cliente que está rservando o quarto
+   * @returns quarto reservado
+   */
+  async book(room: Room, user: User): Promise<Room> {
     const roomDocumentVersion = room.__v;
     const roomId = room._id;
 
@@ -39,8 +81,9 @@ export class RoomService {
         {
           $set: {
             booked: true,
+            paymentConfirmed: false,
             __v: roomDocumentVersion + 1,
-            bookerId: new ObjectId(user.id),
+            bookerId: new ObjectId(user._id),
           },
         },
         { new: true },
@@ -49,15 +92,34 @@ export class RoomService {
     return bookedRoom;
   }
 
-  async checkout(room: Room, user: User): Promise<Room> {
+  async confirmPayment(room: Room, user: User): Promise<Room> {
+    const roomBookedByUserWithPendingPayment = {
+      _id: new ObjectId(room._id),
+      booked: true,
+      bookerId: new ObjectId(user._id),
+      paymentConfirmed: false,
+    };
     return await this.roomModel
       .findOneAndUpdate(
-        {
-          _id: new ObjectId(room._id),
-          booked: true,
-          bookerId: new ObjectId(user.id),
-        },
-        { $set: { booked: false, bookerId: null } },
+        roomBookedByUserWithPendingPayment,
+        { $set: { paymentConfirmed: true } },
+        { new: true },
+      )
+      .exec();
+  }
+
+  async checkout(room: Room, user: User): Promise<Room> {
+    const roomBookedByUserWithPaymentConfirmed = {
+      _id: new ObjectId(room._id),
+      booked: true,
+      bookerId: new ObjectId(user._id),
+      paymentConfirmed: true,
+    };
+
+    return await this.roomModel
+      .findOneAndUpdate(
+        roomBookedByUserWithPaymentConfirmed,
+        { $set: { booked: false, bookerId: null, paymentConfirmed: null } },
         { new: true },
       )
       .exec();

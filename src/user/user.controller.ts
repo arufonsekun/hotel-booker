@@ -11,7 +11,12 @@ import {
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
-import { CreateUserDto, User, UpdateUserDto } from './user.schema';
+import {
+  CreateUserDto,
+  User,
+  UpdateUserRequestDto,
+  UpdateUserResponseDto,
+} from './user.schema';
 import { UserService } from './user.service';
 import { ApiOperation } from '@nestjs/swagger';
 
@@ -56,18 +61,26 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
-      'Cliente, atualize aqui o salvo da sua conta para gastar no Hotel Booker',
+      'Cliente, faça o pagamento da sua reserva para isso basta informar o valor da reserva',
   })
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
+    @Body() updateUserDto: UpdateUserRequestDto,
+  ): Promise<UpdateUserResponseDto> {
     const user = await this.userService.findOneById(id);
     if (!user) {
       throw new UnprocessableEntityException('Id de usuário não encontrado');
     }
 
-    return this.userService.update(id, updateUserDto);
+    const updatedUser = await this.userService.earnCredit(
+      id,
+      updateUserDto.credit,
+    );
+    return {
+      user: updatedUser,
+      message:
+        'Apagamento realizado com sucesso, agora anexe o comprovante para que possamos confirmar sua reserva',
+    };
   }
 }

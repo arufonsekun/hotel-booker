@@ -22,11 +22,14 @@ export class Room {
   @Prop({ required: true })
   capacity: number;
 
+  @Prop({ required: false, default: null })
+  bookerId: string;
+
   @Prop({ required: false, default: false })
   booked: boolean;
 
   @Prop({ required: false, default: null })
-  bookerId: string;
+  paymentConfirmed: boolean;
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);
@@ -84,7 +87,36 @@ export class ListRoomDto {
   readonly booked: boolean;
 }
 
-export class BookRoomDto {
+export class BookRoomRequestDto {
+  @ApiProperty({
+    description: 'Id do usuário que está fazendo a reserva',
+    type: String,
+    required: true,
+    example: '678ef4516b8fb6c4fcaf5025',
+  })
+  @IsString()
+  @IsNotEmpty()
+  bookerId: string;
+
+  @ApiProperty({
+    description:
+      'Quantidade de pessoas que irão se hospedar no quarto (incluindo você)',
+    type: Number,
+    minimum: 1,
+    required: true,
+    example: 1,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  companionsAmount: number;
+}
+
+export class BookRoomResponseDto {
+  room: Room;
+  message: string;
+}
+
+export class RoomBookPaymentRequestDto {
   @ApiProperty({
     description: 'Id do usuário que está fazendo a reserva',
     type: String,
@@ -95,3 +127,20 @@ export class BookRoomDto {
   @IsNotEmpty()
   bookerId: string;
 }
+export class RoomBookPaymentResponseDto extends BookRoomResponseDto {}
+
+export class RoomCheckInRequestDto {
+  @ApiProperty({
+    description: 'Id do usuário que fez a reserva do quarto',
+    type: String,
+    required: true,
+    example: '678ef4516b8fb6c4fcaf5025',
+  })
+  @IsString()
+  @IsNotEmpty()
+  bookerId: string;
+}
+export class RoomCheckInResponseDto extends BookRoomResponseDto {}
+
+export class RoomCheckOutRequestDto extends RoomCheckInRequestDto {}
+export class RoomCheckoutResponseDto extends RoomCheckInResponseDto {}
