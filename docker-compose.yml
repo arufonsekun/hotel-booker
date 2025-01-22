@@ -9,7 +9,7 @@ services:
         read_only: true
     ports:
       - "27017:27017"
-    restart: always
+    restart: no
 
 volumes:
   mongo-data:
