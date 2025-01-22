@@ -112,6 +112,6 @@ A seguir estão documentados os dois fluxos de chamadas de API que você pode se
 6. [Faça checkout no quarto](http://localhost:3000/api#/Room/RoomController_checkout)
 
 ## Por fazer
-* Autenticação e autorização (interessante pra não ter que passar o id do usuário toda vez);
+* Autenticação e autorização;
 * Criar um módulo para armazenar as informações das reservas de quartos (booking). Estava seguindo por esse caminho mas quis manter a modelagem de dados simples e [acabei removendo](https://github.com/arufonsekun/hotel-booker/commit/026fad3558275575eaa3dd67475f9c333d94ee9c), no fim conclui que era uma boa ideia e deveria ter mantido;
 * Testes unitários e de integração;
