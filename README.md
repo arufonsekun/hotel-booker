@@ -36,7 +36,7 @@ npm run start
 
 ## Esquemas
 
-Criei dois esquemas, um para usuário e um para quarto (user.schema e room.schema). Optei por não criar um esquema para a reserva para manter o fluxo simples, porém imagino que a modelagem teria ficado melhor se tivesse feito. Vamos a definição dos esquemas:
+Criei dois esquemas, um para usuário e um para quarto (`user.schema` e `room.schema`). Optei por não criar um esquema para a reserva para manter o fluxo simples, porém imagino que a modelagem teria ficado melhor se tivesse feito. Vamos a definição dos esquemas:
 
 ### Usuário
 
@@ -50,6 +50,7 @@ User {
 }
 ```
 
+### Quarto de hotel
 ```js
 Room {
   _id: string;
@@ -57,10 +58,10 @@ Room {
   name: string;
   description: string;
   price: number; // valor do quarto
-  capacity: number; // quantas pessoas podem se acomodar no quarto
-  bookerId: string; // quem está reservando o quarto (null significa que ninguém está)
+  capacity: number; // quantas pessoas podem se acomodar nele
+  bookerId: string; // quem está reservando (null significa que ninguém está)
   booked: boolean; // se o quarto está reservado ou não
-  paymentConfirmed: boolean; // se o pagamento da reserva atual foi confirmado
+  paymentConfirmed: boolean; // se o pagamento da reserva foi confirmado
   checkInAt: Date; // data que o bookerId vai entrar no quarto
   checkOutAt: Date; // data que o bookerId vai sair
 }
@@ -70,15 +71,22 @@ Room {
 Você pode usar a API do Hotel Booker de duas formas:
 
 1. Como dono da hotelaria, em que você pode:
-1.1 Criar uma conta de usuário,
-1.2 Cadastrar quartos de hotel; ou
+
+   1.1 Criar uma conta de usuário,
+
+   1.2 Cadastrar quartos de hotel; ou
 
 2. Como cliente da hotelaria, em você pode:
-2.1 Criar uma conta de usuário,
-2.2 Reservar quartos de hotel,
-2.3 Informar comprovante de pagamento,
-2.4 Gerar comprovante da reserva;
-2.5 Fazer checkin ou checkout,
+
+   2.1 Criar uma conta de usuário,
+
+   2.2 Reservar quartos de hotel,
+
+   2.3 Informar comprovante de pagamento,
+
+   2.4 Gerar comprovante da reserva;
+
+   2.5 Fazer checkin ou checkout,
 
 A seguir estão documentados os dois fluxos de chamadas de API que você pode seguir.
 
