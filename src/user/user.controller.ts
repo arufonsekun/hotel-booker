@@ -61,7 +61,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
-      'Cliente, faça o pagamento da sua reserva para isso basta informar o valor da reserva',
+      'Cliente, adicione crédito à sua conta para poder reservar um quarto de hotel',
   })
   @Patch(':id')
   async update(
