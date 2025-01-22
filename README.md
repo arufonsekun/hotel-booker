@@ -10,7 +10,7 @@ cp .env.example .env
 
 2. Inicie o banco de dados:
 ```bash
-# Sobe um container com mongo e cria um banco de dados e um usuário (já está configurado no .env.example)
+# Sobe um container com mongo e cria um banco de dados e um usuário (as credenciais já estão corretas no .env.example ;) )
 docker-compose up -d
 ```
 
