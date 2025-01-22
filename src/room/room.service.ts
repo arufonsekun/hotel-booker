@@ -3,6 +3,8 @@ import { CreateRoomDto, ListRoomDto, Room } from './room.schema';
 import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { User } from 'src/user/user.schema';
+import * as puppeteer from 'puppeteer';
+import * as fs from 'fs';
 
 @Injectable()
 export class RoomService {
@@ -66,7 +68,12 @@ export class RoomService {
    * @param user cliente que está rservando o quarto
    * @returns quarto reservado
    */
-  async book(room: Room, user: User): Promise<Room> {
+  async book(
+    room: Room,
+    user: User,
+    checkInAt: Date,
+    checkOutAt: Date,
+  ): Promise<Room> {
     const roomDocumentVersion = room.__v;
     const roomId = room._id;
 
@@ -84,6 +91,8 @@ export class RoomService {
             paymentConfirmed: false,
             __v: roomDocumentVersion + 1,
             bookerId: new ObjectId(user._id),
+            checkInAt,
+            checkOutAt,
           },
         },
         { new: true },
@@ -119,9 +128,52 @@ export class RoomService {
     return await this.roomModel
       .findOneAndUpdate(
         roomBookedByUserWithPaymentConfirmed,
-        { $set: { booked: false, bookerId: null, paymentConfirmed: null } },
+        {
+          $set: {
+            booked: false,
+            bookerId: null,
+            paymentConfirmed: null,
+            checkInAt: null,
+            checkOutAt: null,
+          },
+        },
         { new: true },
       )
       .exec();
+  }
+
+  async storeRoomBookingPaymentProof(room: Room, user: User): Promise<string> {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    const pdfContent = `
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { color: #4CAF50; }
+          p { font-size: 16px; }
+          ul { margin-top: 10px; }
+        </style>
+      </head>
+      <body>
+        <h1> Informações da reserva do quarto: ${room.name}</h1>
+        <p><strong>Nome:</strong> ${user.name}</p>
+        <p><strong>Entrada:</strong> ${room.checkInAt.toLocaleString()}</p>
+        <p><strong>Saída:</strong>${room.checkOutAt.toLocaleString()}</p>
+        <p> Pagamento confirmado ✅ </p>
+      </body>
+      </html>
+    `;
+
+    await page.setContent(pdfContent);
+    const pdfBuffer = await page.pdf({ format: 'A4' });
+
+    await browser.close();
+
+    const filePath = `./proofs/${room._id}@${user._id}.pdf`;
+    fs.writeFileSync(filePath, pdfBuffer);
+
+    return filePath;
   }
 }

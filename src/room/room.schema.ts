@@ -1,5 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsNumber,
+  MinDate,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { addDays } from 'src/utils';
 import { HydratedDocument, model } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -30,6 +38,12 @@ export class Room {
 
   @Prop({ required: false, default: null })
   paymentConfirmed: boolean;
+
+  @Prop({ required: false, default: null })
+  checkInAt: Date;
+
+  @Prop({ required: false, default: null })
+  checkOutAt: Date;
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);
@@ -49,7 +63,7 @@ export class CreateRoomDto {
 
   @ApiProperty({
     description:
-      'Room description like: Quarto de hotel com vista para o mar e suíte master',
+      'Descrição do quarto: Quarto de hotel com vista para o mar e suíte master',
     type: String,
     required: false,
     example: 'Quarto com vista para o mar e suíte master',
@@ -59,7 +73,7 @@ export class CreateRoomDto {
   description: string;
 
   @ApiProperty({
-    description: 'Hotel room price per night',
+    description: 'Valor da diária do quarto',
     type: Number,
     required: true,
     example: 1500.95,
@@ -69,7 +83,7 @@ export class CreateRoomDto {
   price: number;
 
   @ApiProperty({
-    description: 'How many people can stay in this room',
+    description: 'Quantas pessoas podem se hospedar no quarto',
     type: Number,
     required: true,
     example: 3,
@@ -97,6 +111,32 @@ export class BookRoomRequestDto {
   @IsString()
   @IsNotEmpty()
   bookerId: string;
+
+  @ApiProperty({
+    description: 'Data de check-in (entrada no Hotel)',
+    type: Date,
+    required: true,
+    example: addDays(new Date(), 2),
+  })
+  @IsNotEmpty()
+  @Type(() => Date)
+  @MinDate(addDays(new Date(), 2), {
+    message: 'Data de check-in deve ser pelo menos dois dias depois de hoje',
+  })
+  checkInAt: Date;
+
+  @ApiProperty({
+    description: 'Data de check-out (saída do Hotel)',
+    type: Date,
+    required: true,
+    example: addDays(new Date(), 3),
+  })
+  @IsNotEmpty()
+  @Type(() => Date)
+  @MinDate(addDays(new Date(), 3), {
+    message: 'Data de check-out deve ser depois da data de check-it',
+  })
+  checkOutAt: Date;
 
   @ApiProperty({
     description:
@@ -144,3 +184,5 @@ export class RoomCheckInResponseDto extends BookRoomResponseDto {}
 
 export class RoomCheckOutRequestDto extends RoomCheckInRequestDto {}
 export class RoomCheckoutResponseDto extends RoomCheckInResponseDto {}
+
+export class RoomBookingDownloadRequestDto extends RoomCheckInRequestDto {}

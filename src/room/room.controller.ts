@@ -10,6 +10,7 @@ import {
   NotFoundException,
   UnprocessableEntityException,
   UseInterceptors,
+  Res,
 } from '@nestjs/common';
 import {
   CreateRoomDto,
@@ -22,13 +23,15 @@ import {
   RoomBookPaymentResponseDto,
   RoomCheckOutRequestDto,
   RoomCheckoutResponseDto,
+  RoomBookingDownloadRequestDto,
 } from './room.schema';
 import { RoomService } from './room.service';
 import { UserService } from 'src/user/user.service';
 import { ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
+import { Express, Response } from 'express';
 import { uploadPaymentProofMulterOptions } from 'src/config/multer.config';
+import * as fs from 'fs';
 
 @Controller('rooms')
 export class RoomController {
@@ -73,7 +76,7 @@ export class RoomController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
-      'Cliente, reserve seu quarto de hotel agora mesmo (basta informar o id do quarto desejado)',
+      'Cliente, reserve seu quarto de hotel agora mesmo (basta informar o id do quarto desejado, data de entrada e saída)',
   })
   @Post(':id/book')
   async book(
@@ -97,7 +100,12 @@ export class RoomController {
       );
     }
 
-    const updatedRoom = await this.roomService.book(room, user);
+    const updatedRoom = await this.roomService.book(
+      room,
+      user,
+      bookRoomDto.checkInAt,
+      bookRoomDto.checkOutAt,
+    );
     if (!updatedRoom) {
       throw new UnprocessableEntityException(
         'Quarto já reservado, por favor tente escolher outro quarto ou aguarde alguns dias até o quarto estar disponível novamente',
@@ -172,10 +180,12 @@ export class RoomController {
 
     this.userService.earnCredit(bookRoomDto.bookerId, updatedRoom.price);
 
+    this.roomService.storeRoomBookingPaymentProof(updatedRoom, user);
+
     return {
       room: updatedRoom,
       message:
-        'Pagamento confirmado com sucesso, você já pode fazer o check-in no seu quarto',
+        'Pagamento confirmado com sucesso, você já pode fazer o check-in no seu quarto. Acesse /book/download para ver seu comprovante',
     };
   }
 
@@ -245,5 +255,56 @@ export class RoomController {
       room: updatedRoom,
       message: 'Check-out realizado com sucesso',
     };
+  }
+
+  @ApiOperation({
+    summary: 'Cliente, faça o download do comprovante da sua reserva',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Post(':id/book/download')
+  async download(
+    @Res() res: Response,
+    @Param('id') roomId: string,
+    @Body() roomBookingDownload: RoomBookingDownloadRequestDto,
+  ): Promise<void> {
+    const user = await this.userService.findOneById(
+      roomBookingDownload.bookerId,
+    );
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const room =
+      await this.roomService.findRoomBookedByUserWithPaymentConfirmed(
+        roomId,
+        user._id,
+      );
+    if (!room) {
+      throw new NotFoundException(
+        'Você não reservou o quarto informado ou ainda não fez o pagamento',
+      );
+    }
+
+    const filename = `${roomId}@${user._id}.pdf`;
+    const filePath = `./proofs/${filename}`;
+
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundException('Comprovante não encontrado');
+    }
+
+    const clientFilename = `Comprovante de reserva do quarto - ${room.name} (${user.name}).pdf`;
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=${clientFilename}`,
+    });
+
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+
+    fileStream.on('error', (err) => {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .send(`Erro ao stremar arquivo, erro: ${err.message}`);
+    });
   }
 }
